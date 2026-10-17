@@ -114,7 +114,9 @@ RIG = (
 def write_config(tmp_path, store=False):
     path = tmp_path / ("robot-store.toml" if store else "robot.toml")
     text = '[vla]\npolicy = "molmoact2"\nserver_url = "http://127.0.0.1:8202"\n' + RIG
-    path.write_text(text + ('[store]\nroute = "bucket"\n' if store else ""))
+    path.write_text(
+        text + ('[store]\nroute = "bucket"\nbucket = "my-robot-runs"\n' if store else "")
+    )
     return path
 
 
