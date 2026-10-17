@@ -118,13 +118,17 @@ def _child_spec(
 def _record_unregisters(
     monkeypatch: pytest.MonkeyPatch,
 ) -> list[tuple[str, str]]:
-    """Record child unregister calls without mutating this process's tracker."""
+    """Record child shared_memory unregister calls without mutating this process's tracker."""
     unregisters: list[tuple[str, str]] = []
-    monkeypatch.setattr(
-        capture_proc.resource_tracker,
-        "unregister",
-        lambda name, kind: unregisters.append((name, kind)),
-    )
+    orig = capture_proc.resource_tracker.unregister
+
+    def _track(name: str, kind: str) -> None:
+        if kind == "shared_memory":
+            unregisters.append((name, kind))
+        else:
+            orig(name, kind)
+
+    monkeypatch.setattr(capture_proc.resource_tracker, "unregister", _track)
     return unregisters
 
 
